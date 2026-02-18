@@ -1,0 +1,15 @@
+.DS_Store
+coverage.out
+bin/
+*.db
+*.db-wal
+*.db-shm
+.vault/
+.session
+*.enc
+docs/brainstorms/
+docs/plans/
+docs/design-philosophy.md
+mcp/node_modules/
+mcp/dist/
+examples/*/node_modules/

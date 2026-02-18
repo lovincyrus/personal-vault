@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "vault": {
+      "command": "npx",
+      "args": ["tsx", "../../mcp/src/index.ts"],
+      "env": {
+        "VAULT_SCOPE": "identity.*,addresses.*,payment.*",
+        "VAULT_CONSUMER": "shopping-demo"
+      }
+    },
+    "shop": {
+      "command": "npx",
+      "args": ["tsx", "src/index.ts"]
+    }
+  }
+}
