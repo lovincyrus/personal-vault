@@ -1,0 +1,8 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "https://github.com/lovincyrus/personal-vault", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/install.sh", "destination": "https://raw.githubusercontent.com/lovincyrus/personal-vault/main/install.sh" }
+  ]
+}

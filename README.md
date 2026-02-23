@@ -11,7 +11,7 @@ Personal Vault stores your identity, documents, relationships, financial data, a
 ## Usage
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/lovincyrus/personal-vault/main/install.sh | sh
+curl -fsSL https://www.personalvault.dev/install.sh | sh
 pvault onboard
 ```
 
