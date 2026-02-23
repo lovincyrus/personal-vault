@@ -37,6 +37,12 @@ main() {
     cp "${tmpdir}/${BINARY}" "${install_dir}/${BINARY}"
     chmod +x "${install_dir}/${BINARY}"
 
+    # macOS: clear quarantine attribute and ad-hoc sign for Gatekeeper
+    if [ "$(uname -s)" = "Darwin" ]; then
+        xattr -d com.apple.quarantine "${install_dir}/${BINARY}" 2>/dev/null || true
+        codesign --force --sign - "${install_dir}/${BINARY}" 2>/dev/null || true
+    fi
+
     if "${install_dir}/${BINARY}" help > /dev/null 2>&1; then
         echo "Installed ${BINARY} ${version} to ${install_dir}/${BINARY}"
     else
