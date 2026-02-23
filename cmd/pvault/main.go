@@ -56,23 +56,25 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Usage: pvault <command> [args]
+	fmt.Println(`pvault — Personal Context Protocol vault
+
+Usage: pvault <command> [args]
 
 Commands:
-  onboard               Create vault, unlock, and populate common fields
-  init                  Create a new vault
-  unlock                Unlock vault (starts background server)
-  lock                  Lock vault (stops server)
-  serve                 Run server in foreground
-  status                Show vault status
-  schema                Show recommended field names (--json for raw JSON)
-  set <id> <value>      Set a field (e.g., identity.full_name "Cool Cucumber")
-  get <id>              Get a field value
-  list [category]       List fields
-  delete <id>           Delete a field
-  set-sensitivity <id> <tier>  Set field sensitivity (public|standard|sensitive|critical)
-  export                Export all decrypted fields as JSON
-  audit                 Show access audit log
+  onboard                          Create vault, unlock, and populate common fields
+  init                             Create a new vault
+  unlock                           Unlock vault (starts background server)
+  lock                             Lock vault (stops server)
+  serve                            Run server in foreground
+  status                           Show vault status
+  schema                           Show recommended field names (--json for raw JSON)
+  set <id> <value>                 Set a field (e.g., identity.full_name "Cool Cucumber")
+  get <id>                         Get a field value
+  list [category]                  List fields
+  delete <id>                      Delete a field
+  set-sensitivity <id> <tier>      Set field sensitivity (public|standard|sensitive|critical)
+  export                           Export all decrypted fields as JSON
+  audit                            Show access audit log
   create-service-token <consumer>  Create a long-lived service token
   list-service-tokens              List active service tokens
   revoke-service-token <prefix>    Revoke a service token by prefix`)
