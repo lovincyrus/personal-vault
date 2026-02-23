@@ -11,24 +11,15 @@ main() {
     version=$(fetch_latest_version)
     echo "Installing ${BINARY} ${version} (${os}/${arch})..."
 
-    tarball="${BINARY}_${version#v}_${os}_${arch}.tar.gz"
-    url="https://github.com/${REPO}/releases/download/${version}/${tarball}"
-
-    # Fallback for older releases that used repo name instead of binary name
     repo_name=$(echo "${REPO}" | cut -d/ -f2)
-    fallback_tarball="${repo_name}_${version#v}_${os}_${arch}.tar.gz"
-    fallback_url="https://github.com/${REPO}/releases/download/${version}/${fallback_tarball}"
+    tarball="${repo_name}_${version#v}_${os}_${arch}.tar.gz"
+    url="https://github.com/${REPO}/releases/download/${version}/${tarball}"
 
     tmpdir=$(mktemp -d)
     trap 'rm -rf "${tmpdir}"' EXIT
 
     echo "Downloading ${url}..."
-    if ! curl -fsSL "${url}" -o "${tmpdir}/${tarball}" 2>/dev/null; then
-        echo "Trying fallback URL..."
-        tarball="${fallback_tarball}"
-        url="${fallback_url}"
-        curl -fsSL "${url}" -o "${tmpdir}/${tarball}"
-    fi
+    curl -fsSL "${url}" -o "${tmpdir}/${tarball}"
     tar -xzf "${tmpdir}/${tarball}" -C "${tmpdir}"
 
     install_dir=$(choose_install_dir)
