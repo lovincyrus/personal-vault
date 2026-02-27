@@ -73,6 +73,10 @@ func New(v *vault.Vault, addr string) *Server {
 
 func (s *Server) registerRoutes() {
 	// Public endpoints (no auth required)
+	s.mux.HandleFunc("GET /ui", s.handleUI)
+	s.mux.HandleFunc("GET /ui/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/ui", http.StatusMovedPermanently)
+	})
 	s.mux.HandleFunc("POST /vault/unlock", s.handleUnlock)
 	s.mux.HandleFunc("GET /vault/status", s.handleStatus)
 	s.mux.HandleFunc("GET /vault/schema", s.handleSchema)

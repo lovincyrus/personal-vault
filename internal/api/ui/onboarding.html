@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0A0A0A;
+  --surface:#111111;
+  --text:#E8E4DF;
+  --text-muted:#7A756F;
+  --gold:#C9A87C;
+  --gold-dim:rgba(201,168,124,0.15);
+  --danger:#C97C7C;
+  --green:#7CC9A0;
+  --border:#1E1E1E;
+  --font-serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --font-sans:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono','SF Mono','Fira Code',monospace;
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  font-size:15px;
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Grain overlay */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Progress bar */
+.progress-bar{
+  position:fixed;top:0;left:0;height:2px;z-index:100;
+  background:var(--gold);
+  transition:width 0.6s var(--ease-out);
+}
+
+/* Navigation dots */
+.nav-dots{
+  position:fixed;right:28px;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:14px;
+}
+.nav-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--border);border:none;cursor:pointer;padding:0;
+  transition:all 0.4s var(--ease-out);
+}
+.nav-dot:hover{background:var(--text-muted)}
+.nav-dot.active{background:var(--gold);box-shadow:0 0 8px rgba(201,168,124,0.3)}
+
+/* Layout */
+.container{
+  max-width:640px;
+  margin:0 auto;
+  padding:0 24px 120px;
+}
+
+/* Header */
+.header{
+  padding:80px 0 60px;
+  text-align:center;
+}
+.header h1{
+  font-family:var(--font-serif);
+  font-size:42px;
+  font-weight:400;
+  letter-spacing:-0.02em;
+  line-height:1.15;
+  color:var(--text);
+  margin-bottom:12px;
+}
+.header p{
+  color:var(--text-muted);
+  font-size:15px;
+  max-width:380px;
+  margin:0 auto;
+}
+
+/* Sections */
+.section{
+  padding:60px 0;
+  border-top:1px solid var(--border);
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.section.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+.section-number{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--text-muted);
+  letter-spacing:0.05em;
+  margin-bottom:8px;
+}
+.section h2{
+  font-family:var(--font-serif);
+  font-size:28px;
+  font-weight:400;
+  letter-spacing:-0.01em;
+  margin-bottom:4px;
+}
+.section .subtitle{
+  color:var(--text-muted);
+  font-size:14px;
+  margin-bottom:36px;
+}
+
+/* Form fields */
+.field-row{display:flex;gap:16px}
+.field-row .field{flex:1}
+
+.field{
+  margin-bottom:28px;
+  position:relative;
+}
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:500;
+  color:var(--text-muted);
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.field input,
+.field select{
+  width:100%;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--border);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:15px;
+  padding:8px 0;
+  outline:none;
+  transition:border-color 0.3s var(--ease-out);
+  border-radius:0;
+  -webkit-appearance:none;
+}
+.field input::placeholder{color:var(--border)}
+.field input:focus,
+.field select:focus{
+  border-bottom-color:var(--gold);
+}
+.field select{
+  cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%237A756F' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 0 center;
+  padding-right:20px;
+}
+.field select option{
+  background:var(--surface);
+  color:var(--text);
+}
+.field input[list]::-webkit-calendar-picker-indicator{
+  filter:invert(0.5);
+}
+
+/* Password toggle */
+.field .input-wrap{
+  position:relative;
+}
+.field .input-wrap input{
+  padding-right:36px;
+}
+.toggle-vis{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--text-muted);font-size:13px;
+  font-family:var(--font-mono);
+  padding:4px;
+  transition:color 0.2s;
+}
+.toggle-vis:hover{color:var(--text)}
+
+/* Save status */
+.field .status{
+  position:absolute;
+  right:0;top:0;
+  font-size:11px;
+  font-family:var(--font-mono);
+  transition:opacity 0.3s;
+}
+.field .status.saved{color:var(--green);opacity:1}
+.field .status.saving{color:var(--text-muted);opacity:1}
+.field .status.error{color:var(--danger);opacity:1}
+.field .status.idle{opacity:0}
+
+/* Error banner */
+.error-banner{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--danger);color:var(--bg);
+  font-family:var(--font-mono);font-size:13px;
+  text-align:center;padding:10px 24px;
+  transform:translateY(-100%);
+  transition:transform 0.4s var(--ease-out);
+}
+.error-banner.show{transform:translateY(0)}
+
+/* Footer */
+.footer{
+  padding:40px 0;
+  border-top:1px solid var(--border);
+  text-align:center;
+  color:var(--text-muted);
+  font-size:13px;
+}
+.footer .count{
+  font-family:var(--font-mono);
+  color:var(--gold);
+}
+
+/* Responsive */
+@media(max-width:600px){
+  .header h1{font-size:32px}
+  .section h2{font-size:24px}
+  .field-row{flex-direction:column;gap:0}
+  .nav-dots{display:none}
+  .container{padding:0 20px 80px}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress" style="width:0%"></div>
+
+<div class="error-banner" id="errorBanner">Session expired. Please run <code>pvault ui</code> again.</div>
+
+<nav class="nav-dots" id="navDots"></nav>
+
+<div class="container">
+  <div class="header">
+    <h1>Your Vault</h1>
+    <p>Everything stored here is encrypted end-to-end. Fill what you need, skip the rest.</p>
+  </div>
+
+  <!-- 01 Identity -->
+  <section class="section" data-section="0">
+    <div class="section-number">01</div>
+    <h2>Who are you?</h2>
+    <p class="subtitle">Core identity information</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label>First Name</label>
+        <span class="status idle"></span>
+        <input type="text" data-field="identity.first_name" placeholder="Jane" autocomplete="given-name">
+      </div>
+      <div class="field">
+        <label>Last Name</label>
+        <span class="status idle"></span>
+        <input type="text" data-field="identity.last_name" placeholder="Smith" autocomplete="family-name">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Full Name</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="identity.full_name" placeholder="Jane Smith" autocomplete="name">
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <span class="status idle"></span>
+      <input type="email" data-field="identity.email" placeholder="jane@example.com" autocomplete="email">
+    </div>
+
+    <div class="field">
+      <label>Phone</label>
+      <span class="status idle"></span>
+      <input type="tel" data-field="identity.phone" placeholder="+1 555 123 4567" autocomplete="tel">
+    </div>
+
+    <div class="field">
+      <label>Date of Birth</label>
+      <span class="status idle"></span>
+      <input type="date" data-field="identity.date_of_birth" autocomplete="bday">
+    </div>
+
+  </section>
+
+  <!-- 02 Addresses -->
+  <section class="section" data-section="1">
+    <div class="section-number">02</div>
+    <h2>Where do you live?</h2>
+    <p class="subtitle">Your home address</p>
+
+    <div class="field">
+      <label>Street Address</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="addresses.home_street" placeholder="123 Main St" autocomplete="street-address">
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>City</label>
+        <span class="status idle"></span>
+        <input type="text" data-field="addresses.home_city" placeholder="San Francisco" autocomplete="address-level2">
+      </div>
+      <div class="field">
+        <label>State</label>
+        <span class="status idle"></span>
+        <input type="text" data-field="addresses.home_state" placeholder="CA" autocomplete="address-level1">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>ZIP Code</label>
+        <span class="status idle"></span>
+        <input type="text" data-field="addresses.home_zip" placeholder="94105" autocomplete="postal-code">
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <span class="status idle"></span>
+        <input type="text" data-field="addresses.home_country" placeholder="US" autocomplete="country">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Employment -->
+  <section class="section" data-section="2">
+    <div class="section-number">03</div>
+    <h2>What do you do?</h2>
+    <p class="subtitle">Your work details</p>
+
+    <div class="field">
+      <label>Employer</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="employment.employer" placeholder="Acme Corp" autocomplete="organization">
+    </div>
+
+    <div class="field">
+      <label>Title</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="employment.title" placeholder="Software Engineer" autocomplete="organization-title">
+    </div>
+  </section>
+
+  <!-- 04 Financial -->
+  <section class="section" data-section="3">
+    <div class="section-number">04</div>
+    <h2>Tax information</h2>
+    <p class="subtitle">Sensitive &mdash; encrypted with critical-tier protection</p>
+
+    <div class="field">
+      <label>Filing Status</label>
+      <span class="status idle"></span>
+      <select data-field="financial.filing_status">
+        <option value="">-</option>
+        <option value="single">Single</option>
+        <option value="married_joint">Married Filing Jointly</option>
+        <option value="married_separate">Married Filing Separately</option>
+        <option value="head_of_household">Head of Household</option>
+        <option value="qualifying_widow">Qualifying Widow(er)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>SSN</label>
+      <span class="status idle"></span>
+      <div class="input-wrap">
+        <input type="password" data-field="financial.ssn" placeholder="***-**-****" autocomplete="off">
+        <button type="button" class="toggle-vis" data-toggle>show</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Payment -->
+  <section class="section" data-section="4">
+    <div class="section-number">05</div>
+    <h2>Payment details</h2>
+    <p class="subtitle">Your default payment card</p>
+
+    <div class="field">
+      <label>Card Number</label>
+      <span class="status idle"></span>
+      <div class="input-wrap">
+        <input type="password" data-field="payment.card_number" placeholder="**** **** **** ****" autocomplete="off">
+        <button type="button" class="toggle-vis" data-toggle>show</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Expiry</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="payment.card_expiry" placeholder="MM/YY" autocomplete="cc-exp">
+    </div>
+
+    <div class="field">
+      <label>Cardholder Name</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="payment.cardholder_name" placeholder="Jane Smith" autocomplete="cc-name">
+    </div>
+
+    <div class="field">
+      <label>Card Brand</label>
+      <span class="status idle"></span>
+      <select data-field="payment.card_brand">
+        <option value="">-</option>
+        <option value="Visa">Visa</option>
+        <option value="Mastercard">Mastercard</option>
+        <option value="Amex">American Express</option>
+        <option value="Discover">Discover</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- 06 Preferences -->
+  <section class="section" data-section="5">
+    <div class="section-number">06</div>
+    <h2>Preferences</h2>
+    <p class="subtitle">How you like things set up</p>
+
+    <div class="field">
+      <label>Timezone</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="preferences.timezone" list="tz-list" placeholder="America/New_York" autocomplete="off">
+      <datalist id="tz-list">
+        <option value="America/New_York">
+        <option value="America/Chicago">
+        <option value="America/Denver">
+        <option value="America/Los_Angeles">
+        <option value="America/Anchorage">
+        <option value="Pacific/Honolulu">
+        <option value="America/Toronto">
+        <option value="America/Vancouver">
+        <option value="Europe/London">
+        <option value="Europe/Paris">
+        <option value="Europe/Berlin">
+        <option value="Europe/Amsterdam">
+        <option value="Europe/Rome">
+        <option value="Europe/Madrid">
+        <option value="Europe/Zurich">
+        <option value="Asia/Tokyo">
+        <option value="Asia/Shanghai">
+        <option value="Asia/Hong_Kong">
+        <option value="Asia/Singapore">
+        <option value="Asia/Seoul">
+        <option value="Asia/Kolkata">
+        <option value="Asia/Dubai">
+        <option value="Australia/Sydney">
+        <option value="Australia/Melbourne">
+        <option value="Pacific/Auckland">
+        <option value="America/Sao_Paulo">
+        <option value="America/Mexico_City">
+        <option value="Africa/Johannesburg">
+        <option value="Africa/Lagos">
+      </datalist>
+    </div>
+
+    <div class="field">
+      <label>Language</label>
+      <span class="status idle"></span>
+      <input type="text" data-field="preferences.language" placeholder="en" autocomplete="language">
+    </div>
+  </section>
+
+  <div class="footer">
+    <span class="count" id="filledCount">0</span> of <span id="totalCount">0</span> fields filled
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Extract token from URL fragment
+  const hash = window.location.hash;
+  let token = '';
+  if (hash.startsWith('#token=')) {
+    token = hash.slice(7);
+    history.replaceState(null, '', window.location.pathname);
+  }
+
+  if (!token) {
+    showError('No session token. Run pvault ui to open this page.');
+    return;
+  }
+
+  const BASE = window.location.origin;
+  const inputs = document.querySelectorAll('[data-field]');
+  const totalCount = inputs.length;
+  let filledCount = 0;
+
+  document.getElementById('totalCount').textContent = totalCount;
+
+  // Categories to load
+  const categories = ['identity', 'addresses', 'employment', 'financial', 'payment', 'preferences'];
+
+  // --- API ---
+
+  function api(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    return fetch(BASE + path, opts).then(function(r) {
+      if (r.status === 401 || r.status === 403) {
+        showError('Session expired. Please run pvault ui again.');
+        throw new Error('unauthorized');
+      }
+      return r.json();
+    });
+  }
+
+  // --- Load existing values ---
+
+  function loadCategory(cat) {
+    return api('GET', '/vault/fields/category/' + cat).then(function(fields) {
+      if (!Array.isArray(fields)) return;
+      fields.forEach(function(f) {
+        const input = document.querySelector('[data-field="' + f.id + '"]');
+        if (input && f.value) {
+          input.value = f.value;
+        }
+      });
+    }).catch(function() {});
+  }
+
+  Promise.all(categories.map(loadCategory)).then(updateProgress);
+
+  // --- Auto-save on blur ---
+
+  inputs.forEach(function(input) {
+    let lastSaved = '';
+
+    input.addEventListener('blur', function() {
+      const val = input.value.trim();
+      const fieldId = input.getAttribute('data-field');
+      const statusEl = input.closest('.field').querySelector('.status');
+
+      if (!val || val === lastSaved) return;
+
+      setStatus(statusEl, 'saving');
+
+      api('PUT', '/vault/fields/' + fieldId, { value: val })
+        .then(function() {
+          lastSaved = val;
+          setStatus(statusEl, 'saved');
+          updateProgress();
+          setTimeout(function() { setStatus(statusEl, 'idle'); }, 2000);
+        })
+        .catch(function() {
+          setStatus(statusEl, 'error');
+        });
+    });
+
+    // Also save on Enter for text inputs
+    if (input.tagName === 'INPUT') {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          input.blur();
+        }
+      });
+    }
+
+    // Selects: save on change
+    if (input.tagName === 'SELECT') {
+      input.addEventListener('change', function() {
+        input.blur();
+        // Re-trigger blur logic
+        const event = new Event('blur');
+        input.dispatchEvent(event);
+      });
+    }
+  });
+
+  // --- Status indicator ---
+
+  function setStatus(el, state) {
+    el.className = 'status ' + state;
+    var labels = { saved: 'Saved', saving: 'Saving...', error: 'Error', idle: '' };
+    el.textContent = labels[state] || '';
+  }
+
+  // --- Progress ---
+
+  function updateProgress() {
+    filledCount = 0;
+    inputs.forEach(function(input) {
+      if (input.value.trim()) filledCount++;
+    });
+    document.getElementById('filledCount').textContent = filledCount;
+    var pct = totalCount > 0 ? (filledCount / totalCount * 100) : 0;
+    document.getElementById('progress').style.width = pct + '%';
+  }
+
+  // --- Scroll reveal + nav dots ---
+
+  var sections = document.querySelectorAll('.section');
+  var navDots = document.getElementById('navDots');
+
+  sections.forEach(function(_, i) {
+    var dot = document.createElement('button');
+    dot.className = 'nav-dot';
+    dot.setAttribute('aria-label', 'Section ' + (i + 1));
+    dot.addEventListener('click', function() {
+      sections[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    navDots.appendChild(dot);
+  });
+
+  var dots = navDots.querySelectorAll('.nav-dot');
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        var idx = parseInt(entry.target.getAttribute('data-section'), 10);
+        dots.forEach(function(d, i) {
+          d.classList.toggle('active', i === idx);
+        });
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '-40px 0px' });
+
+  sections.forEach(function(s) { observer.observe(s); });
+
+  // --- Password toggle ---
+
+  document.querySelectorAll('[data-toggle]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var input = btn.parentElement.querySelector('input');
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.textContent = isPassword ? 'hide' : 'show';
+    });
+  });
+
+  // --- Error banner ---
+
+  function showError(msg) {
+    var banner = document.getElementById('errorBanner');
+    banner.textContent = msg;
+    banner.classList.add('show');
+  }
+})();
+</script>
+</body>
+</html>

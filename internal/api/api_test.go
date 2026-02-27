@@ -920,6 +920,21 @@ func TestSecurityHeaders(t *testing.T) {
 	}
 }
 
+func TestUI_ServesHTML(t *testing.T) {
+	env := setup(t)
+	w := env.doRequest(t, "GET", "/ui", nil, false)
+	if w.Code != 200 {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+	ct := w.Header().Get("Content-Type")
+	if ct != "text/html; charset=utf-8" {
+		t.Fatalf("expected text/html, got %q", ct)
+	}
+	if !strings.Contains(w.Body.String(), "Your Vault") {
+		t.Fatal("expected HTML page with 'Your Vault' heading")
+	}
+}
+
 // F9: Error message sanitization
 func TestErrorMessages_NoInternalLeak(t *testing.T) {
 	env := setup(t)
