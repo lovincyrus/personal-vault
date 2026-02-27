@@ -29,9 +29,6 @@ var synonyms = map[string]string{
 	"telephone":     "phone",
 	"phone_number":  "phone",
 	"mobile":        "phone",
-	"shirt_size":    "tshirt_size",
-	"tee_size":      "tshirt_size",
-
 	// addresses
 	"street":       "home_street",
 	"address":      "home_street",

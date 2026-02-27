@@ -34,8 +34,7 @@ var RecommendedSchema = Schema{
 				{ID: "identity.email", Description: "Primary email address", Sensitivity: "standard"},
 				{ID: "identity.phone", Description: "Phone number", Sensitivity: "sensitive"},
 				{ID: "identity.date_of_birth", Description: "Date of birth", Sensitivity: "sensitive"},
-				{ID: "identity.tshirt_size", Description: "T-shirt size (XS, S, M, L, XL, 2XL)", Sensitivity: "public"},
-			},
+				},
 		},
 		{
 			Name:        "addresses",
