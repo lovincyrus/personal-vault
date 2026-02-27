@@ -46,6 +46,8 @@ func main() {
 		cmdRevokeServiceToken()
 	case "onboard":
 		cmdOnboard()
+	case "ui":
+		cmdUI()
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -75,6 +77,7 @@ Commands:
   set-sensitivity <id> <tier>      Set field sensitivity (public|standard|sensitive|critical)
   export                           Export all decrypted fields as JSON
   audit                            Show access audit log
+  ui                               Open vault onboarding form in browser
   create-service-token <consumer>  Create a long-lived service token
   list-service-tokens              List active service tokens
   revoke-service-token <prefix>    Revoke a service token by prefix`)

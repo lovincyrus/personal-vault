@@ -36,6 +36,15 @@ pvault onboard
 ```
 </details>
 
+### Browser UI
+
+```sh
+pvault unlock
+pvault ui                            # Opens onboarding form in your browser
+```
+
+Fill in your details — each field auto-saves as you go.
+
 ### Manual setup
 
 ```sh
@@ -78,6 +87,8 @@ pvault export                            # Export all fields as JSON
 pvault set-sensitivity <id> <tier>       # Set sensitivity tier
 pvault audit                             # Show access log
 
+pvault ui                               # Open onboarding form in browser
+
 pvault create-service-token <consumer>   # Create a long-lived token
 pvault list-service-tokens               # List active tokens
 pvault revoke-service-token <prefix>     # Revoke a token by prefix
@@ -91,6 +102,7 @@ The vault runs at `http://127.0.0.1:7200`. Protected endpoints require `Authoriz
 
 ```
 GET    /vault/status                    # Vault status (public)
+GET    /ui                              # Onboarding form (public)
 POST   /vault/unlock                    # Unlock → session token
 
 GET    /vault/fields                    # List field metadata
